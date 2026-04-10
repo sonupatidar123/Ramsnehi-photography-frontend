@@ -20,16 +20,19 @@ const Testimonials = () => {
 
         // Pass is_featured=true — Django will filter if the field/filter is set up,
         // otherwise we filter client-side below as a safe fallback.
-        const res = await fetch(`${API_BASE_URL}/api/testimonials/?is_featured=true`);
+        const res = await fetch(`${API_BASE_URL}/api/testimonials/`);
 
         if (!res.ok) throw new Error(`Server Error: ${res.status} ${res.statusText}`);
 
         const data = await res.json();
+
+        console.log("Raw API Data:", data);
+
         const all  = Array.isArray(data) ? data : data.results ?? [];
 
         // Client-side fallback filter: if backend ignores the param, we filter here.
         // If backend already filtered, this is a no-op (all items will have is_featured=true).
-        const featured = all.filter((t) => t.is_featured !== false);
+        const featured = all;
 
         setTestimonials(featured);
       } catch (err) {
@@ -69,7 +72,7 @@ const Testimonials = () => {
         {/* Loading Skeleton */}
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-            {[1, 2].map((i) => (
+            {[1,2].map((i) => (
               <div key={i} className="flex flex-col items-center animate-pulse">
                 <div className="w-24 h-24 rounded-full bg-gray-100 mb-6" />
                 <div className="h-4 bg-gray-100 rounded w-1/3 mb-4" />
@@ -81,6 +84,7 @@ const Testimonials = () => {
             ))}
           </div>
         )}
+        
 
         {/* Error State */}
         {!loading && error && (
@@ -110,21 +114,23 @@ const Testimonials = () => {
                 className="flex flex-col items-center text-center"
               >
                 {/* Avatar */}
-                <div className="w-24 h-24 rounded-full overflow-hidden mb-6 grayscale hover:grayscale-0 transition-all duration-500 shadow-sm border border-gray-100">
-                  {t.client_image ? (
-                    <img
-                      src={resolveUrl(t.client_image)}
-                      alt={t.client_name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-50 flex items-center justify-center">
-                      <span className="text-xl font-serif text-gray-300">
-                        {t.client_name?.charAt(0) ?? 'C'}
-                      </span>
-                    </div>
-                  )}
-                </div>
+               <div className="w-24 h-24 rounded-full overflow-hidden mb-6 transition-all duration-500 shadow-lg border-4 border-white ring-1 ring-gray-100">
+  {t.client_image ? (
+    <img
+      src={resolveUrl(t.client_image)}
+      alt={t.client_name}
+      className="w-full h-full object-cover" // Actual color strictly applied
+    />
+  ) : (
+    // Fallback placement changed to center
+    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+      <span className="text-2xl font-serif text-gray-400 uppercase">
+        {t.client_name?.charAt(0) ?? 'C'}
+      </span>
+    </div>
+  )}
+</div>
+{/* 👆 YAHAN TAK UPDATE KAREIN 👆 */}
 
                 {/* Name */}
                 <h4 className="text-sm font-serif tracking-[0.2em] uppercase text-gray-900 mb-3">
