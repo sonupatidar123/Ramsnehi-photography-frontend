@@ -5,10 +5,16 @@ import API_BASE_URL from '../config';
 const BRAND_NAME = "Ramsnehi Photography";
 const PHONE_NUMBER = "+91 96441 67702";
 const SUGGESTED_REVIEWS = [
-  "Rahul and his team captured our wedding beautifully. Every emotion, every tiny detail was preserved like magic. We couldn't have asked for a better cinematography team!",
-  "The pre-wedding shoot was an absolute dream. The way they play with light and natural surroundings is just phenomenal. Highly recommended in Madhya Pradesh!",
-  "Professional, punctual, and incredibly talented. They made us feel so comfortable in front of the camera. The final wedding film brought tears to our eyes.",
-  "Ramsnehi Photography truly understands the essence of Indian weddings. The candid shots are my absolute favorite. Thank you for giving us memories for a lifetime."
+  "I had an amazing experience with Ramsnehi Photography Mandsaur. Their wedding photography was शानदार and every moment was captured beautifully. Highly recommended for wedding and pre-wedding shoots in Mandsaur.",
+  "Best photography service in Mandsaur! Ramsnehi Photography team is very professional and creative. They covered our pre wedding shoot and results were mind blowing.",
+"अगर आप best wedding photographer ढूंढ रहे हो तो Ramsnehi Photography perfect choice है। Indore और Ujjain में भी इनकी service top class है।",
+"Ramsnehi Photography provided excellent birthday and party shoot services. Quality, editing and delivery time sab perfect tha.",
+"Very professional team! They handled our event in Bhopal and captured every detail perfectly. Best photography service provider.",
+"Highly satisfied with their cinematic video and drone shoot. Ramsnehi Photography is one of the best in Mandsaur and nearby areas like Neemuch and Ratlam.",
+"Amazing work! Their wedding album design and photo editing is next level. Highly recommend for all photography services.",
+"Ramsnehi Photography team is very friendly and skilled. They covered our engagement and pre wedding shoot in Indore beautifully.",
+"Best photographer in Mandsaur! Affordable price and premium quality work. Must try for wedding, party and event shoots.",
+"Excellent service across multiple locations like Dewas, Dhar and Pratapgarh. Ramsnehi Photography is truly reliable for all types of shoots."
 ];
 
 const ReviewFunnel = () => {
