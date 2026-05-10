@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import imageCompression from 'browser-image-compression';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  Users, Image as ImageIcon, Film, MessageSquare, Plus, Trash2,
-  LogOut, Loader2, X, UploadCloud, AlertTriangle,
+  Users, Image as ImageIcon, Film, Plus, Trash2,
+  LogOut, Loader2, X, UploadCloud, AlertTriangle, Book, MessageSquare
 } from 'lucide-react';
 import AdminLogin from './AdminLogin';
 import API_BASE_URL from '../config';
+
+
 
 const BASE_URL = `${API_BASE_URL}/api`;
 
@@ -16,6 +18,14 @@ const GOLD2   = 'rgba(201,169,110,0.12)';
 const BORDER  = 'rgba(255,255,255,0.06)';
 const CARD_BG = '#111110';
 const PAGE_BG = '#0a0a09';
+
+const endpointMap = {
+  Inquiries: 'inquiries',
+  Gallery: 'gallery',
+  Films: 'films',
+  Blogs: 'blogs',
+  Feedbacks: 'feedbacks',
+};
 
 const sansFont  = { fontFamily: "'DM Sans', system-ui, sans-serif" };
 const serifFont = { fontFamily: "'DM Serif Display', Georgia, serif" };
@@ -41,8 +51,11 @@ const DeleteConfirmModal = ({ target, onConfirm, onCancel, isDeleting }) => {
   const nounMap = {
     Gallery:      'photo',
     Films:        'film',
-    Testimonials: 'testimonial',
+    Inquiries:    'inquiry',
+    Feedback:     'feedback entry',
+    Blogs:          'blog post',
   };
+
   const noun = nounMap[target.tab] ?? 'entry';
 
   return (
@@ -237,11 +250,14 @@ const AdminDashboard = () => {
       const res = await fetch(`${API_BASE_URL}/api/token/refresh/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+
         body: JSON.stringify({ refresh }),
       });
       if (res.ok) {
         const data = await res.json();
         saveTokens(data.access, data.refresh ?? refresh);
+
+
         return data.access;
       }
       return null;
@@ -271,7 +287,10 @@ const AdminDashboard = () => {
     let currentToken = localStorage.getItem('adminToken');
     let res = await fetch(url, {
       ...options,
-      headers: { ...options.headers, Authorization: `Bearer ${currentToken}` },
+      headers: {
+  ...(options.headers || {}),
+  Authorization: `Bearer ${currentToken}`,
+},
     });
     if (res.status === 401) {
       const newToken = await tryRefreshToken();
@@ -292,7 +311,7 @@ const AdminDashboard = () => {
   const { data: records = [], isLoading, isFetching } = useQuery({
     queryKey: [activeTab],
     queryFn: async () => {
-      const res = await authFetch(`${BASE_URL}/${activeTab.toLowerCase()}/`, {
+      const res = await authFetch(`${BASE_URL}/${endpointMap[activeTab]}/`, {
         headers: { Accept: 'application/json' },
       });
       if (!res.ok) throw new Error('Fetch failed');
@@ -306,7 +325,7 @@ const AdminDashboard = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
-      const res = await authFetch(`${BASE_URL}/${activeTab.toLowerCase()}/${id}/`, {
+      const res = await authFetch(`${BASE_URL}/${endpointMap[activeTab]}/${id}/`, {
         method: 'DELETE',
       });
       if (!res.ok && res.status !== 204) throw new Error('Delete failed');
@@ -333,40 +352,68 @@ const AdminDashboard = () => {
     deleteMutation.mutate(deleteTarget.id);
   }, [deleteTarget, deleteMutation]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSaving(true);
-    const fd = new FormData();
-    try {
-      for (const key of Object.keys(formData)) {
-        if (key === 'image_file' && formData[key]) {
-          const compressed = await imageCompression(formData[key], {
-            maxSizeMB: 0.6, maxWidthOrHeight: 1600, useWebWorker: true,
-          });
-          fd.append(activeTab === 'Gallery' ? 'image' : 'client_image', compressed);
-        } else {
-          fd.append(key, formData[key]);
-        }
-      }
-      const res = await authFetch(`${BASE_URL}/${activeTab.toLowerCase()}/`, {
-        method: 'POST', body: fd,
-      });
-      if (res.ok) {
-        setIsModalOpen(false);
-        setFormData({});
-        queryClient.invalidateQueries({ queryKey: [activeTab] });
-      } else {
-        const err = await res.json();
-        alert(`Failed: ${err.detail || JSON.stringify(err)}`);
-      }
-    } catch (error) {
-      if (error.message !== 'Session expired. Please log in again.')
-        alert('Network error or image compression failed. Please try again.');
-    } finally {
-      setIsSaving(false);
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSaving(true);
+  const fd = new FormData();
+  
+  try {
+    // 1. Handle the Title
+    if (formData.title) fd.append('title', formData.title);
 
+    // 2. Handle the Image (The most sensitive part)
+    if (formData.image_file) {
+      const compressed = await imageCompression(formData.image_file, {
+        maxSizeMB: 0.6, maxWidthOrHeight: 1600, useWebWorker: true,
+      });
+
+      const djangoImageKey = 'image'; 
+      
+      // Third argument 'blob.jpg' helps Django identify it as a file
+      fd.append(djangoImageKey, compressed, 'upload.jpg');
+    }
+
+    // 3. Handle Specific Tab Fields
+    if (activeTab === 'Blogs' && formData.excerpt) {
+      fd.append('excerpt', formData.excerpt);
+    }
+    
+    if (activeTab === 'Films' && formData.video_id) {
+      fd.append('video_id', formData.video_id);
+      fd.append('type', 'Cinematic Film');
+    }
+
+    if (activeTab === 'Gallery' && formData.category) {
+      fd.append('category', formData.category);
+    }
+
+    // DEBUG: Log exactly what is being sent
+    for (let [key, value] of fd.entries()) {
+      console.log(`${key}:`, value);
+    }
+
+    const res = await authFetch(`${BASE_URL}/${endpointMap[activeTab]}/`, {
+      method: 'POST', 
+      body: fd,
+    });
+
+    if (res.ok) {
+      setIsModalOpen(false);
+      setFormData({});
+      queryClient.invalidateQueries({ queryKey: [activeTab] });
+    } else {
+      const err = await res.json();
+      // This alert will now show you exactly which field Django is complaining about
+      alert(`Django Error: ${JSON.stringify(err)}`);
+    }
+
+  } catch (error) {
+    console.error("Submission error:", error);
+    alert('Network error or image compression failed.');
+  } finally {
+    setIsSaving(false);
+  }
+};
   if (isValidating) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-[#0a0a09]">
@@ -386,7 +433,8 @@ const AdminDashboard = () => {
     { id: 'Inquiries',    icon: Users,         label: 'Inquiries'    },
     { id: 'Gallery',      icon: ImageIcon,     label: 'Gallery'      },
     { id: 'Films',        icon: Film,          label: 'Films'        },
-    { id: 'Testimonials', icon: MessageSquare, label: 'Testimonials' },
+    { id: 'Blogs',        icon: Book,          label: 'Blogs'        },
+    { id: 'Feedbacks',    icon: MessageSquare, label: 'Feedback'     },
   ];
 
   return (
@@ -481,23 +529,27 @@ const AdminDashboard = () => {
           )}
         </header>
 
-        <div className="flex-1 overflow-y-auto p-6 lg:p-10">
-          {isLoading ? (
-            <div className="h-full flex flex-col items-center justify-center opacity-40">
-              <Loader2 className="animate-spin" size={28} style={{ color: GOLD }} />
-              <p className="uppercase tracking-widest text-[10px] mt-4">Loading Data...</p>
-            </div>
-          ) : records.length === 0 ? (
-            <EmptyState tab={activeTab} onAdd={() => setIsModalOpen(true)} />
-          ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {activeTab === 'Inquiries'    && <InquiryTable     data={records} />}
-              {activeTab === 'Gallery'      && <GalleryGrid      data={records} onDelete={requestDelete} />}
-              {activeTab === 'Films'        && <FilmsGrid        data={records} onDelete={requestDelete} />}
-              {activeTab === 'Testimonials' && <TestimonialsList data={records} onDelete={requestDelete} />}
-            </motion.div>
-          )}
-        </div>
+       {/* // Inside AdminDashboard return statement: */}
+<div className="flex-1 overflow-y-auto p-6 lg:p-10">
+  {isLoading ? (
+    <div className="h-full flex flex-col items-center justify-center opacity-40">
+      <Loader2 className="animate-spin" size={28} style={{ color: GOLD }} />
+      <p className="uppercase tracking-widest text-[10px] mt-4">Loading Data...</p>
+    </div>
+  ) : records.length === 0 ? (
+    <EmptyState tab={activeTab} onAdd={() => setIsModalOpen(true)} />
+  ) : (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      {/* UPDATE THIS LINE BELOW */}
+      {activeTab === 'Inquiries'    && <InquiryTable     data={records} onDelete={requestDelete} />}
+      {activeTab === 'Feedbacks'    && <FeedbackTable    data={records} onDelete={requestDelete} />}
+      
+      {activeTab === 'Gallery'      && <GalleryGrid      data={records} onDelete={requestDelete} />}
+      {activeTab === 'Films'        && <FilmsGrid        data={records} onDelete={requestDelete} />}
+      {activeTab === 'Blogs'        && <BlogsGrid        data={records} onDelete={requestDelete} />}
+    </motion.div>
+  )}
+</div>
       </main>
 
       {/* ── Add Entry Modal ── */}
@@ -522,12 +574,12 @@ const AdminDashboard = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
-                <FormField label={activeTab === 'Testimonials' ? 'Client Name' : 'Title'}>
+                <FormField label="Title">
                   <StyledInput
                     required placeholder="Enter here..."
                     onChange={(val) => setFormData((p) => ({
                       ...p,
-                      [activeTab === 'Testimonials' ? 'client_name' : 'title']: val,
+                      title: val,
                     }))}
                   />
                 </FormField>
@@ -556,7 +608,17 @@ const AdminDashboard = () => {
                   </FormField>
                 )}
 
-                {(activeTab === 'Gallery' || activeTab === 'Testimonials') && (
+              {activeTab === 'Blogs' && (
+  <FormField label="Excerpt">
+    <textarea 
+      required 
+      className="w-full rounded-xl px-4 py-3 bg-[#0d0d0c] border border-white/10 text-[#e8ddd0] h-20 resize-none outline-none focus:border-[#c9a96e40] transition-colors" 
+      onChange={(e) => setFormData(p => ({ ...p, excerpt: e.target.value }))}
+    />
+  </FormField>
+)}
+
+                {(activeTab === 'Gallery' || activeTab === 'Blogs') && (
                   <FormField label="Upload Image">
                     <label className="block border-2 border-dashed border-white/10 p-6 text-center rounded-xl cursor-pointer hover:border-[#c9a96e40] transition-colors">
                       <input type="file" accept="image/*" required className="hidden"
@@ -566,16 +628,6 @@ const AdminDashboard = () => {
                         {formData.image_file ? formData.image_file.name : 'Click to select image'}
                       </p>
                     </label>
-                  </FormField>
-                )}
-
-                {activeTab === 'Testimonials' && (
-                  <FormField label="Testimonial Text">
-                    <textarea
-                      required
-                      className="w-full rounded-xl px-4 py-3 bg-[#0d0d0c] border border-white/10 text-[#e8ddd0] outline-none h-24 resize-none"
-                      onChange={(e) => setFormData((p) => ({ ...p, text: e.target.value }))}
-                    />
                   </FormField>
                 )}
 
@@ -664,38 +716,38 @@ const FilmsGrid = ({ data, onDelete }) => (
   </div>
 );
 
-const TestimonialsList = ({ data, onDelete }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-    {data.map((t) => (
-      <div key={t.id} className="relative p-6 rounded-2xl bg-white/5 border border-white/5 group">
-        <div className="flex items-center gap-4 mb-4">
-          {t.client_image ? (
-            <img src={t.client_image} className="w-12 h-12 rounded-xl object-cover grayscale" alt={t.client_name} />
-          ) : (
-            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-white/40 text-lg font-serif">
-              {t.client_name?.charAt(0) ?? 'C'}
-            </div>
-          )}
-          <div>
-            <h4 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[#f0e6d6]">
-              {t.client_name}
-            </h4>
-            <span className="text-[10px] text-[#c9a96e] uppercase tracking-widest">Verified Client</span>
-          </div>
-        </div>
-        <p className="text-sm text-white/60 italic leading-relaxed">"{t.text}"</p>
-        <button
-          onClick={() => onDelete(t.id, t.client_name)}
-          className="mt-4 text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 hover:text-red-300"
-        >
-          <Trash2 size={12} /> Delete
-        </button>
-      </div>
-    ))}
+const FeedbackTable = ({ data, onDelete }) => (
+  <div className="rounded-xl border border-white/5 overflow-hidden">
+    <table className="w-full text-left">
+      <thead className="bg-white/5 text-[10px] uppercase tracking-widest text-[#5a5048]">
+        <tr>
+          <th className="p-4">Name</th>
+          <th className="p-4">Feedback</th>
+          <th className="p-4">Date</th>
+          <th className="p-4 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-white/5">
+        {data.map((item) => (
+          <tr key={item.id} className="text-sm hover:bg-white/[0.02] transition-colors group">
+            <td className="p-4 text-[#f0e6d6] font-medium whitespace-nowrap">{item.name}</td>
+            <td className="p-4 text-[#8a7f75] text-xs max-w-xs md:max-w-md lg:max-w-lg pr-8">{item.feedback_text}</td>
+            <td className="p-4 text-xs text-[#5a5048] whitespace-nowrap">
+              {new Date(item.submitted_at).toLocaleDateString()}
+            </td>
+            <td className="p-4 text-right">
+              <button onClick={() => onDelete(item.id, item.name)} className="p-2 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                <Trash2 size={16} />
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   </div>
 );
 
-const InquiryTable = ({ data }) => (
+const InquiryTable = ({ data, onDelete }) => (
   <div className="rounded-xl border border-white/5 overflow-hidden">
     <table className="w-full text-left">
       <thead className="bg-white/5 text-[10px] uppercase tracking-widest text-[#5a5048]">
@@ -704,11 +756,12 @@ const InquiryTable = ({ data }) => (
           <th className="p-4">Contact</th>
           <th className="p-4">Type</th>
           <th className="p-4">Date</th>
+          <th className="p-4 text-right">Actions</th> {/* Added Header */}
         </tr>
       </thead>
       <tbody className="divide-y divide-white/5">
         {data.map((item) => (
-          <tr key={item.id} className="text-sm hover:bg-white/[0.02] transition-colors">
+          <tr key={item.id} className="text-sm hover:bg-white/[0.02] transition-colors group">
             <td className="p-4 text-[#f0e6d6] font-medium">{item.full_name}</td>
             <td className="p-4">
               <div className="flex flex-col text-xs text-[#8a7f75]">
@@ -723,6 +776,14 @@ const InquiryTable = ({ data }) => (
             </td>
             <td className="p-4 text-xs text-[#5a5048]">
               {new Date(item.submitted_at).toLocaleDateString()}
+            </td>
+            <td className="p-4 text-right"> {/* Added Action Cell */}
+              <button
+                onClick={() => onDelete(item.id, item.full_name)}
+                className="p-2 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+              >
+                <Trash2 size={16} />
+              </button>
             </td>
           </tr>
         ))}
@@ -742,6 +803,30 @@ const EmptyState = ({ tab, onAdd }) => (
         + Add your first entry
       </button>
     )}
+  </div>
+);
+
+const BlogsGrid = ({ data, onDelete }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {data.map((blog) => (
+      <div key={blog.id} className="group relative bg-[#111110] border border-white/5 rounded-2xl overflow-hidden flex flex-col">
+        <div className="aspect-video w-full relative overflow-hidden">
+          <img src={blog.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" alt={blog.title} />
+          {/* Removed the category badge that was here */}
+          <button onClick={() => onDelete(blog.id, blog.title)} className="absolute top-4 right-4 p-2 bg-red-500/20 hover:bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all">
+            <Trash2 size={16} />
+          </button>
+        </div>
+        <div className="p-6">
+          <h3 style={serifFont} className="text-xl text-[#f0e6d6] mb-2">{blog.title}</h3>
+          <p className="text-xs text-[#6a5f55] line-clamp-2 leading-relaxed">{blog.excerpt}</p>
+          <div className="mt-4 flex items-center justify-between text-[10px] text-[#3d3530] uppercase tracking-widest font-bold">
+            <span>{new Date(blog.date || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+            <span className="text-[#c9a96e]">Live</span>
+          </div>
+        </div>
+      </div>
+    ))}
   </div>
 );
 

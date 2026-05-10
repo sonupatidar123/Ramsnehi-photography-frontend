@@ -10,13 +10,16 @@ const ParallaxHeader = ({ title, bgImage, subTitle }) => {
     <div className="relative h-[85vh] w-full overflow-hidden flex items-center justify-center bg-black">
       {/* Background Image with Slow Zoom & Parallax */}
       <motion.div 
-        initial={{ scale: 1.2, opacity: 0 }}
-        whileInView={{ scale: 1, opacity: 0.7 }}
-        transition={{ duration: 2, ease: "easeOut" }}
-        className="absolute inset-0 z-0 bg-fixed bg-center bg-cover"
+        initial={{ scale: 1, opacity: 0 }}
+        whileInView={{ scale: 1.15, opacity: 0.7 }}
+        transition={{ 
+          opacity: { duration: 1.5 },
+          scale: { duration: 20, ease: "linear", repeat: Infinity, repeatType: "reverse" }
+        }}
+        className="absolute inset-0 z-0 bg-center bg-cover"
         style={{ 
           backgroundImage: `url(${bgImage})`,
-          // This keeps the image moving slightly for a deeper parallax feel
+          y: y // This applies the scroll parallax effect
         }}
       />
 

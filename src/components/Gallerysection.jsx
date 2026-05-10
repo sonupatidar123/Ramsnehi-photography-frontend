@@ -3,38 +3,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import API_BASE_URL from '../config';
 
-// GET /api/gallery/
-// Returns: [{ id, title, category, image }]
-// image is an absolute URL from the backend (Cloudinary / S3 / media)
-
-const GallerySection = ({ title, category, categories, lightBg = false }) => {
-  const [items,         setItems]         = useState([]);
-  const [loading,       setLoading]       = useState(true);
-  const [error,         setError]         = useState(null);
-  const [showAll,       setShowAll]       = useState(false);
-  const [visibleCount,  setVisibleCount]  = useState(6);
+const GallerySection = ({ title, category, categories, lightBg = false, staticItems = [] }) => {
+  const [dynamicItems, setDynamicItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [expanded, setExpanded] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
   const isMulti = Array.isArray(categories) && categories.length > 0;
-
-  // ── Responsive visible count ─────────────────────────────────────
-  useEffect(() => {
-    const updateCount = () => {
-      if (window.innerWidth < 640)       setVisibleCount(3);
-      else if (window.innerWidth < 1024) setVisibleCount(4);
-      else                               setVisibleCount(6);
-    };
-    updateCount();
-    window.addEventListener('resize', updateCount);
-    return () => window.removeEventListener('resize', updateCount);
-  }, []);
-
-  // ── Fetch gallery ────────────────────────────────────────────────
-  // Stable dep for categories array — serialise to string to avoid
-  // infinite re-fetch when parent passes a new array reference each render.
   const categoriesKey = JSON.stringify(categories);
 
+  // Fetch additional images from backend when expanded
   useEffect(() => {
+    if (!expanded) return;
+
     const fetchGallery = async () => {
       try {
         setLoading(true);
@@ -43,15 +25,20 @@ const GallerySection = ({ title, category, categories, lightBg = false }) => {
         const res = await fetch(`${API_BASE_URL}/api/gallery/`);
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
         const data = await res.json();
-        const allItems = Array.isArray(data) ? data : data.results ?? [];
+        let allItems = Array.isArray(data) ? data : data.results ?? [];
 
+        // Filter by category
         if (isMulti) {
-          setItems(allItems.filter((item) => categories.includes(item.category)));
+          allItems = allItems.filter((item) => categories.includes(item.category));
         } else if (category) {
-          setItems(allItems.filter((item) => item.category === category));
-        } else {
-          setItems(allItems);
+          allItems = allItems.filter((item) => item.category === category);
         }
+
+        // Remove items that match static item IDs (avoid duplicates)
+        const staticIds = new Set(staticItems.map((item) => item.id));
+        const newDynamic = allItems.filter((item) => !staticIds.has(item.id));
+
+        setDynamicItems(newDynamic);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -60,16 +47,38 @@ const GallerySection = ({ title, category, categories, lightBg = false }) => {
     };
 
     fetchGallery();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, categoriesKey]);
+  }, [expanded, category, categoriesKey, isMulti, categories, staticItems]);
 
-  // ── Resolve image URL (handles relative & absolute) ──────────────
-  const resolveUrl = useCallback(
-    (url) => (url && url.startsWith('http') ? url : `${API_BASE_URL}${url}`),
-    [],
-  );
+  // Resolve image URL (handles imported, local, and backend URLs)
+  const resolveUrl = useCallback((url) => {
+    if (!url) return '';
+    // Already an absolute URL (http/https)
+    if (url.startsWith('http')) return url;
+    // Local file (imported or public folder)
+    if (url.startsWith('/')) return url;
+    // Backend relative URL - add API base
+    return `${API_BASE_URL}${url}`;
+  }, []);
 
-  const displayItems = showAll ? items : items.slice(0, visibleCount);
+  // Display logic:
+  // - Not expanded: show first 4 static items only
+  // - Expanded: show ALL static items + ALL dynamic items from backend
+  const displayItems = expanded
+    ? [...staticItems, ...dynamicItems]
+    : staticItems.slice(0, 4);
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log(`[GallerySection: ${title}]`, {
+      staticItemsCount: staticItems.length,
+      dynamicItemsCount: dynamicItems.length,
+      displayItemsCount: displayItems.length,
+      expanded,
+      staticItems,
+      displayItems
+    });
+  }, [title, staticItems, dynamicItems, displayItems, expanded]);
+  const shouldShowButton = staticItems.length > 0;
 
   return (
     <section className={`py-24 ${lightBg ? 'bg-white' : 'bg-[#fcfcfc]'} border-b border-gray-100`}>
@@ -81,51 +90,52 @@ const GallerySection = ({ title, category, categories, lightBg = false }) => {
           <h2 className="text-2xl font-serif tracking-[0.2em] uppercase text-gray-900">{title}</h2>
         </div>
 
-        {loading && (
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <AnimatePresence mode="popLayout">
+            {displayItems.map((item) => (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4 }}
+                className="group cursor-pointer"
+                onClick={() => setSelectedImage(item)}
+              >
+                <div className="relative overflow-hidden aspect-[4/5] bg-gray-100 shadow-sm">
+                  <img
+                    src={resolveUrl(item.image)}
+                    alt={item.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
+                    <p className="text-white text-[10px] uppercase tracking-[0.3em] font-bold border-b border-white pb-1">
+                      View Full Size
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-5 text-center">
+                  <h4 className="text-gray-800 text-sm font-medium tracking-wide uppercase italic">
+                    {item.title}
+                  </h4>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* Loading indicator when fetching more */}
+        {loading && expanded && (
           <p className="text-center text-gray-400 tracking-widest text-xs uppercase py-10">
-            Loading...
+            Loading more...
           </p>
         )}
+
+        {/* Error message */}
         {error && (
           <p className="text-center text-red-500 py-10">{error}</p>
-        )}
-
-        {/* Grid */}
-        {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            <AnimatePresence mode="popLayout">
-              {displayItems.map((item) => (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.4 }}
-                  className="group cursor-pointer"
-                  onClick={() => setSelectedImage(item)}
-                >
-                  <div className="relative overflow-hidden aspect-[4/5] bg-gray-100 shadow-sm">
-                    <img
-                      src={resolveUrl(item.image)}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
-                      <p className="text-white text-[10px] uppercase tracking-[0.3em] font-bold border-b border-white pb-1">
-                        View Full Size
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-5 text-center">
-                    <h4 className="text-gray-800 text-sm font-medium tracking-wide uppercase italic">
-                      {item.title}
-                    </h4>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
         )}
 
         {/* Lightbox */}
@@ -168,23 +178,24 @@ const GallerySection = ({ title, category, categories, lightBg = false }) => {
           )}
         </AnimatePresence>
 
-        {/* Explore More / Show Less */}
-        {!loading && !error && items.length > visibleCount && (
+        {/* Explore More / Show Less Button */}
+        {shouldShowButton && (
           <div className="mt-20 text-center">
             <button
-              onClick={() => setShowAll((v) => !v)}
-              className="group relative inline-flex items-center gap-6 px-12 py-5 border border-gray-900 overflow-hidden transition-all"
+              onClick={() => setExpanded((v) => !v)}
+              disabled={loading}
+              className="group relative inline-flex items-center gap-6 px-12 py-5 border border-gray-900 overflow-hidden transition-all hover:shadow-lg disabled:opacity-50"
             >
               <span
                 className={`relative z-10 text-xs uppercase tracking-[0.4em] transition-colors duration-300 ${
-                  showAll ? 'text-white' : 'text-gray-900'
+                  expanded ? 'text-white' : 'text-gray-900'
                 } group-hover:text-white`}
               >
-                {showAll ? 'Show Less' : `Explore More ${title}`}
+                {expanded ? '← Show Less' : 'Explore More →'}
               </span>
               <div
                 className={`absolute inset-0 bg-gray-900 transition-all duration-500 ${
-                  showAll ? 'w-full' : 'w-0 group-hover:w-full'
+                  expanded ? 'w-full' : 'w-0 group-hover:w-full'
                 }`}
               />
             </button>

@@ -2,8 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import rahulImg from '../assets/rahul-patidar.png';
+import { useNavigate } from 'react-router-dom';
 
 const StudioStory = () => {
+  const navigate = useNavigate();
   return (
     <section id="about" className="py-32 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
@@ -67,8 +69,11 @@ const StudioStory = () => {
               </p>
             </div>
 
-            <button className="group flex items-center gap-4 text-xs uppercase tracking-[0.4em] font-bold text-gray-900 pt-6">
-              View Personal Gallery 
+            <button 
+  onClick={() => navigate('/gallery')}
+  className="group flex items-center gap-4 text-xs uppercase tracking-[0.4em] font-bold text-gray-900 pt-6"
+>
+              Daily Stories
               <span className="p-2 border border-gray-200 rounded-full group-hover:bg-red-600 group-hover:text-white transition-all duration-300">
                 <ArrowRight size={16} />
               </span>

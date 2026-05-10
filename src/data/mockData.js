@@ -4,7 +4,19 @@ export const OWNER_NAME = "Rahul Patidar";
 export const PHONE_NUMBER = "+91 96441 67702";
 export const LOCATIONS = ["Mandsaur", "Indore", "Udaipur", "Jaipur"];
 
-
+// Add this to your existing mockdata.js
+export const SUGGESTED_REVIEWS = [
+  "Ramsnehi captured our wedding perfectly! Rahul Patidar and his team are incredibly professional and creative. Highly recommended!",
+  "Best photography service in Mandsaur. The quality of photos and the cinematic wedding film exceeded our expectations.",
+  "Rahul is a magician with the camera. Our pre-wedding shoot in Udaipur was a dream come true. Thank you Ramsnehi!",
+  "Incredible experience! They made us feel so comfortable during the shoot. The final albums are stunningly beautiful.",
+  "If you are looking for premium wedding photography in Indore or Jaipur, Ramsnehi is the only choice. Impeccable service!",
+  "The team's attention to detail is amazing. They didn't just take photos; they captured emotions. Simply the best.",
+  "Creative, punctual, and very talented. The Ramsnehi team handled our 3-day wedding event with absolute ease.",
+  "Ramsnehi's style is unique and modern. Our wedding film looks like a high-budget Bollywood movie! Amazing work.",
+  "Highly professional team led by Rahul Patidar. They are the best wedding photographers we have ever worked with.",
+  "Superb quality and great communication. They delivered the photos ahead of schedule. 5 stars for Ramsnehi!"
+];
 
 export const HERO_IMAGES = [
   "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=2000",
