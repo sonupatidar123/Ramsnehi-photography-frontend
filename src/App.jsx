@@ -75,13 +75,13 @@ const preWeddingItems = [
   },
   {
     id: 'static-prewedding-3',
-    title: 'Pre-Wedding Story',
+    title: 'two souls , one journey',
     category: 'Pre-Wedding',
     image: prewedding3
   },
   {
     id: 'static-prewedding-4',
-    title: 'Pre-Wedding Moments',
+    title: 'Love Loading...',
     category: 'Pre-Wedding',
     image: prewedding4
   }
@@ -90,7 +90,7 @@ const preWeddingItems = [
 const weddingItems = [
   {
     id: 'static-wedding-1',
-    title: 'A garland of love , a promise for life',
+    title: 'Forever Begins',
     category: 'Wedding',
     image: wedding1
   },
@@ -108,7 +108,7 @@ const weddingItems = [
   },
   {
     id: 'static-wedding-4',
-    title: 'Wedding Celebration',
+    title: 'Endless Love',
     category: 'Wedding',
     image: wedding4
   }
@@ -117,25 +117,25 @@ const weddingItems = [
 const maternityItems = [
   {
     id: 'static-maternity-1',
-    title: 'Cute little girl😊',
+    title: 'Family moments are the best moments',
     category: 'Maternity & Kids',
     image: Maternity1
   },
   {
     id: 'static-maternity-2',
-    title: 'Precious Moments',
+    title: 'Tiny smiles',
     category: 'Maternity & Kids',
     image: Maternity2
   },
   {
     id: 'static-maternity-3',
-    title: 'Baby Moments',
+    title: 'sweet memories',
     category: 'Maternity & Kids',
     image: Maternity3
   },
   {
     id: 'static-maternity-4',
-    title: 'Family Moments',
+    title: 'childhood magic',
     category: 'Maternity & Kids',
     image: Maternity4
   }

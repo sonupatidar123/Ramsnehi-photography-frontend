@@ -44,7 +44,7 @@ const Footer = () => {
               Photography
             </span>
             <p className="text-xs text-gray-500 max-w-xs text-center leading-relaxed">
-              Rahul Patidar | Crafting cinematic memories across Indore, Udaipur, and Jaipur.
+              Rahul Patidar | Crafting cinematic memories across mandsaur, ratlam, and indore.
             </p>
           </motion.div>
 
