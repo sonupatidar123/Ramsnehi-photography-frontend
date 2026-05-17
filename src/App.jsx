@@ -24,6 +24,7 @@ const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const DailyJournal = lazy(() => import('./components/DailyJournal'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const ReviewFunnel = lazy(() => import('./components/ReviewFunnel'));
+const AKReview = lazy(() => import('./components/AKReview'));
 
 // Loading component
 const LoadingSpinner = lazy(() => import('./components/LoadingSpinner'));
@@ -223,7 +224,8 @@ function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/ramsnehi_admin');
   const isReviewPage = location.pathname.startsWith('/review');
-  const hideNavAndFooter = isAdminPage || isReviewPage;
+  const isAKReviewPage = location.pathname.startsWith('/ak_review');
+  const hideNavAndFooter = isAdminPage || isReviewPage || isAKReviewPage;
 
   return (
     <div className={`font-sans min-h-screen scroll-smooth ${isAdminPage ? 'bg-[#0a0a09] text-[#c8bfb4]' : 'bg-white text-gray-900'}`}>
@@ -270,7 +272,16 @@ function AppContent() {
                 </Suspense>
               } 
             />
+              <Route 
+              path="/ak_review" 
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <AKReview />
+                </Suspense>
+              } 
+            />
           </Routes>
+        
         </Suspense>
       </AnimatePresence>
 
