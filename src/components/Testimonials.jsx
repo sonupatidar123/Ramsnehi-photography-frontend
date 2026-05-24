@@ -1,187 +1,238 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Quote, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const TESTIMONIALS = [
   {
     id: 1,
     client_name: 'Ashutosh',
-    text: 'Working with this team was an absolute pleasure. They understood our vision instantly and delivered something that exceeded every expectation we had going in.',
+    text: 'Working with Ramsnehi was an absolute pleasure. They understood our vision instantly and delivered wedding photos that exceeded every expectation we had.',
     client_image: null,
     rating: 5,
+    type: 'Wedding Client'
   },
   {
     id: 2,
     client_name: 'Akansha',
-    text: 'The attention to detail was remarkable. Every pixel, every interaction felt intentional. Our clients frequently comment on how refined the final product looks.',
+    text: 'The attention to detail was remarkable. Every moment, every emotion felt captured perfectly. Our guests frequently compliment the stunning photographs.',
     client_image: null,
     rating: 5,
+    type: 'Pre-Wedding Shoot'
   },
   {
     id: 3,
     client_name: 'Priya Mehta',
-    text: 'From the very first call, communication was seamless. Deadlines were met without fuss, and the creative output was genuinely inspiring. I\'d recommend them without hesitation.',
+    text: "From the very first consultation, communication was seamless. Rahul and his team delivered the cinematic wedding film we always dreamed of. Highly recommended!",
     client_image: null,
     rating: 5,
+    type: 'Wedding Film'
   },
   {
     id: 4,
-    client_name: 'pradeep',
-    text: 'A rare combination of strategic thinking and flawless execution. They didn\'t just build what we asked for — they helped us understand what we actually needed.',
+    client_name: 'Pradeep',
+    text: "Ramsnehi didn't just capture photos — they captured the essence of our love story. The creativity and professionalism were truly exceptional.",
     client_image: null,
     rating: 5,
+    type: 'Wedding Client'
   },
   {
     id: 5,
     client_name: 'Vijay',
-    text: 'The process felt collaborative every step of the way. They brought ideas we hadn\'t considered and always kept our audience front of mind. Truly exceptional work.',
+    text: "The entire process felt collaborative and smooth. They brought creative ideas we hadn't considered and delivered beyond what we imagined.",
     client_image: null,
     rating: 5,
+    type: 'Pre-Wedding'
   },
   {
     id: 6,
     client_name: 'Ananya',
-    text: 'We\'ve worked with many agencies over the years, but this was something different. A genuine creative partnership that produced work we\'re still proud of two years later.',
+    text: "We've seen many photographers over the years, but Ramsnehi is something truly special. A genuine creative partnership that produced timeless memories.",
     client_image: null,
     rating: 5,
+    type: 'Wedding Client'
   },
 ];
 
-const StarRating = ({ count = 5 }) => (
-  <div className="flex justify-center gap-0.5 mb-3" aria-label={`${count} out of 5 stars`}>
-    {Array.from({ length: 5 }).map((_, i) => (
-      <svg
-        key={i}
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill={i < count ? '#B87333' : 'none'}
-        stroke={i < count ? '#B87333' : '#d1d5db'}
-        strokeWidth="1.5"
-        aria-hidden="true"
-      >
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-      </svg>
-    ))}
-  </div>
-);
-
-const Avatar = ({ name, imageSrc }) => {
-  const initial = name?.charAt(0)?.toUpperCase() ?? '?';
-
-  if (imageSrc) {
-    return (
-      <img
-        src={imageSrc}
-        alt={name}
-        className="w-full h-full object-cover"
-      />
-    );
-  }
-
+const TestimonialCard = ({ testimonial, index, isActive }) => {
   return (
-    <span className="text-2xl font-serif text-gray-400 uppercase select-none">
-      {initial}
-    </span>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: '-50px' }}
+      transition={{ duration: 0.5, delay: index * 0.08 }}
+      className={`relative p-8 md:p-10 border transition-all duration-300 group overflow-hidden ${
+        isActive 
+          ? 'bg-gradient-to-br from-white/10 to-white/5 border-red-500/40 ring-1 ring-red-500/20' 
+          : 'bg-white/[0.02] border-white/[0.08] hover:border-white/[0.15]'
+      }`}
+    >
+      {/* Decorative Corner Accent */}
+      <div className="absolute top-0 left-0 w-20 h-20 border-t border-l border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute bottom-0 right-0 w-20 h-20 border-b border-r border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+      {/* Quote Icon */}
+      <Quote className="w-8 h-8 text-red-500/20 group-hover:text-red-500/40 transition-colors duration-300 mb-4" />
+      
+      {/* Rating */}
+      <div className="flex gap-1.5 mb-6">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            size={13}
+            className="fill-red-500 text-red-500"
+          />
+        ))}
+      </div>
+
+      {/* Quote Text */}
+      <p className="text-white/70 text-sm leading-[1.8] mb-8 italic font-light z-10 relative">
+        "{testimonial.text}"
+      </p>
+
+      {/* Divider */}
+      <div className="w-8 h-px bg-gradient-to-r from-red-500 to-transparent mb-6" />
+
+      {/* Client Info */}
+      <div className="flex items-center gap-4 mt-auto">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500/30 to-red-500/10 flex items-center justify-center border border-red-500/20 overflow-hidden shrink-0">
+          {testimonial.client_image ? (
+            <img src={testimonial.client_image} alt={testimonial.client_name} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-xs font-serif text-red-400 uppercase font-bold">
+              {testimonial.client_name.charAt(0)}
+            </span>
+          )}
+        </div>
+        <div>
+          <h4 className="text-xs font-bold uppercase tracking-widest text-white/90 mb-0.5">
+            {testimonial.client_name}
+          </h4>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">
+            {testimonial.type}
+          </span>
+        </div>
+      </div>
+    </motion.div>
   );
 };
 
-const TestimonialCard = ({ testimonial, index }) => (
-  <motion.div
-    key={testimonial.id}
-    initial={{ opacity: 0, y: 24 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: '-60px' }}
-    transition={{ duration: 0.55, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
-    className="flex flex-col items-center text-center"
-  >
-    {/* Avatar */}
-    <div className="w-[88px] h-[88px] rounded-full overflow-hidden mb-5 flex items-center justify-center bg-gray-50 border-[3px] border-white ring-1 ring-gray-100 shadow-sm">
-      <Avatar name={testimonial.client_name} imageSrc={testimonial.client_image} />
-    </div>
-
-    {/* Stars */}
-    <StarRating count={testimonial.rating} />
-
-    {/* Name */}
-    <h4 className="text-[11px] font-serif tracking-[0.22em] uppercase text-gray-900 mb-1">
-      {testimonial.client_name ?? 'Anonymous'}
-    </h4>
-
-    {/* Divider dot */}
-    <div className="w-1 h-1 rounded-full bg-gray-200 mb-4" aria-hidden="true" />
-
-    {/* Quote */}
-    <p className="text-gray-500 leading-relaxed font-light italic text-sm">
-      &ldquo;{testimonial.text}&rdquo;
-    </p>
-  </motion.div>
-);
-
 const Testimonials = () => {
-  const [visibleCount, setVisibleCount] = useState(4);
-  const visible = TESTIMONIALS.slice(0, visibleCount);
-  const hasMore = visibleCount < TESTIMONIALS.length;
+  const [current, setCurrent] = useState(0);
+  const itemsPerView = 3;
+  const totalSlides = Math.ceil(TESTIMONIALS.length / itemsPerView);
+
+  const nextSlide = () => {
+    setCurrent((prev) => (prev + 1) % totalSlides);
+  };
+
+  const prevSlide = () => {
+    setCurrent((prev) => (prev - 1 + totalSlides) % totalSlides);
+  };
+
+  const visibleTestimonials = TESTIMONIALS.slice(current * itemsPerView, (current + 1) * itemsPerView);
 
   return (
-    <section className="py-24 bg-white border-t border-gray-50">
-      <div className="max-w-5xl mx-auto px-6">
+    <section className="py-24 md:py-32 bg-[#050505] relative overflow-hidden">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-500/[0.02] to-transparent pointer-events-none" />
+      
+      {/* Decorative Elements */}
+      <div className="absolute top-20 right-10 w-96 h-96 bg-red-500/5 rounded-full blur-[120px] opacity-30 pointer-events-none" />
+      <div className="absolute bottom-20 left-10 w-96 h-96 bg-red-500/5 rounded-full blur-[120px] opacity-30 pointer-events-none" />
 
+      <div className="max-w-7xl mx-auto px-5 md:px-10 relative z-10">
+        
         {/* Section Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 md:mb-20">
           <motion.span
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-[10px] uppercase tracking-[0.3em] text-gray-400 block mb-2"
+            className="text-red-500 text-[10px] tracking-[0.5em] uppercase font-bold block mb-4"
           >
-            Kind Words
+            Client Stories
           </motion.span>
 
           <motion.h2
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.08 }}
-            className="text-3xl font-serif tracking-widest uppercase mb-4 text-gray-900"
+            transition={{ delay: 0.1, duration: 0.6 }}
+            className="text-4xl md:text-5xl lg:text-6xl font-serif italic text-white leading-tight tracking-tight mb-6"
           >
-            Testimonials
+            Words from <span className="text-red-500">Happy Couples</span>
           </motion.h2>
 
-          <motion.div
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.45, delay: 0.18 }}
-            className="w-12 h-[1px] bg-gray-900 mx-auto origin-left"
-          />
-        </div>
-
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-14">
-          {visible.map((t, index) => (
-            <TestimonialCard key={t.id} testimonial={t} index={index} />
-          ))}
-        </div>
-
-        {/* Load More */}
-        {hasMore && (
-          <motion.div
+          <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="mt-16 text-center"
+            transition={{ delay: 0.15 }}
+            className="text-white/40 text-sm md:text-base max-w-xl mx-auto"
           >
+            Real moments, real emotions. Here's what our clients say about working with Ramsnehi.
+          </motion.p>
+        </div>
+
+        {/* Grid with Animation */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <AnimatePresence mode="wait">
+            {visibleTestimonials.map((testimonial, index) => (
+              <TestimonialCard 
+                key={testimonial.id} 
+                testimonial={testimonial} 
+                index={index}
+                isActive={index === 1}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* Navigation - Only show on small screens */}
+        {totalSlides > 1 && (
+          <div className="lg:hidden flex items-center justify-center gap-4">
             <button
-              onClick={() => setVisibleCount((c) => Math.min(c + 2, TESTIMONIALS.length))}
-              className="text-[10px] uppercase tracking-[0.3em] text-gray-400 hover:text-gray-700 transition-colors duration-200 border-b border-gray-200 hover:border-gray-700 pb-0.5"
+              onClick={prevSlide}
+              className="p-3 rounded-full border border-white/10 text-white/40 hover:text-white hover:border-red-500/50 hover:bg-red-500/5 transition-all duration-300"
             >
-              Read More
+              <ChevronLeft size={18} />
             </button>
-          </motion.div>
+            
+            <div className="flex gap-2">
+              {[...Array(totalSlides)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrent(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    i === current ? 'w-8 bg-red-500' : 'w-2 bg-white/20 hover:bg-white/40'
+                  }`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={nextSlide}
+              className="p-3 rounded-full border border-white/10 text-white/40 hover:text-white hover:border-red-500/50 hover:bg-red-500/5 transition-all duration-300"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
         )}
 
+        {/* Dots Indicator - Desktop */}
+        {totalSlides > 1 && (
+          <div className="hidden lg:flex items-center justify-center gap-2 mt-12">
+            {[...Array(totalSlides)].map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === current ? 'w-8 bg-red-500' : 'w-2 bg-white/20 hover:bg-white/40'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

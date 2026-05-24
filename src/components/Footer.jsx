@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { SiInstagram, SiWhatsapp } from '@icons-pack/react-simple-icons';
 import { Phone, Play } from 'lucide-react';
 
@@ -25,7 +26,7 @@ const Footer = () => {
               <p>Mandsaur, Madhya Pradesh</p>
               <div className="flex items-center justify-center md:justify-start gap-2">
                 <Phone size={14} className="text-red-500" />
-                <span>+91 96441 67702</span>
+                <a href="tel:+919644167702" className="hover:text-red-500 transition-colors">+91 96441 67702</a>
               </div>
               
             </div>
@@ -94,8 +95,8 @@ const Footer = () => {
           <p>© 2026 Ramsnehi Photography. All Rights Reserved.</p>
           <div className="flex gap-8 mt-4 md:mt-0">
             <span className="opacity-50">By sonu patidar</span>
-            <a href="#" className="hover:text-white transition">Privacy</a>
-            <a href="#" className="hover:text-white transition">Terms</a>
+            <Link to="/privacy" className="hover:text-white transition">Privacy</Link>
+            <Link to="/terms" className="hover:text-white transition">Terms</Link>
           </div>
         </motion.div>
       </div>

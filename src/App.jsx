@@ -24,7 +24,11 @@ const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const DailyJournal = lazy(() => import('./components/DailyJournal'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const ReviewFunnel = lazy(() => import('./components/ReviewFunnel'));
+
 const AKReview = lazy(() => import('./components/AKReview'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
+
 
 // Loading component
 const LoadingSpinner = lazy(() => import('./components/LoadingSpinner'));
@@ -54,11 +58,14 @@ import prewedding1 from './assets/gallery/prewedding-1.jpg';
 import prewedding2 from './assets/gallery/prewedding-2.jpg';
 import prewedding3 from './assets/gallery/prewedding-3.jpg';
 import prewedding4 from './assets/gallery/prewedding-4.jpg';
+import prewedding5 from './assets/gallery/prewedding-5.jpg'
 
 import Maternity1 from './assets/gallery/maternity-1.jpg';
 import Maternity2 from './assets/gallery/maternity-2.jpg';
 import Maternity3 from './assets/gallery/maternity-3.jpg';
 import Maternity4 from './assets/gallery/maternity-4.jpg';
+
+import film1 from  './assets/gallery/prewedding-4.jpg'
 
 // Static Items Arrays
 const preWeddingItems = [
@@ -174,7 +181,7 @@ function HomePage() {
         <ParallaxHeader
           title="Pre-Wedding"
           subTitle="The Beginning of Forever"
-          bgImage="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=2000"
+          bgImage={prewedding5}
         />
         <GallerySection title="Latest Pre-Weddings" category="Pre-Wedding" staticItems={preWeddingItems} />
       </div>
@@ -183,7 +190,7 @@ function HomePage() {
         <ParallaxHeader
           title="Wedding"
           subTitle="A Royal Celebration of Love"
-          bgImage="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&q=80&w=2000"
+          bgImage={wedding1}
         />
         <GallerySection title="Wedding Stories" category="Wedding" staticItems={weddingItems} lightBg />
       </div>
@@ -192,7 +199,7 @@ function HomePage() {
         <ParallaxHeader
           title="Films"
           subTitle="Cinematic Visual Stories"
-          bgImage="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=2000"
+          bgImage={film1}
         />
         <VideoSection />
       </div>
@@ -201,7 +208,7 @@ function HomePage() {
         <ParallaxHeader
           title="Maternity & Kids"
           subTitle="Precious Little Moments"
-          bgImage="https://images.unsplash.com/photo-1559599141-98bb67c45889?auto=format&fit=crop&q=80&w=2000"
+          bgImage={Maternity1}
         />
         <GallerySection
           title="Newborn · Toddler · Maternity"

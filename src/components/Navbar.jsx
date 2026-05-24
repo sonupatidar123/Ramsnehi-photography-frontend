@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { HERO_IMAGES } from '../data/mockData';
+import aboutimg from '../assets/rahul-patidar.png'
+import prewedding from '../assets/gallery/prewedding-1.jpg'
+import wedding from '../assets/gallery/wedding-1.jpg'
+import film from '../assets/gallery/prewedding-5.jpg'
+import maternity from '../assets/gallery/maternity-1.jpg'
+import testimonial from '../assets/gallery/wedding-2.jpg'
+import contact from '../assets/gallery/wedding-3.jpg'
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -10,14 +18,14 @@ const Navbar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { name: 'Home', id: 'top', img: 'https://images.unsplash.com/photo-1492691523567-61723c27adfe?q=80&w=1000' },
-    { name: 'About', id: 'about', img: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=1000' },
-    { name: 'Pre-Wedding', id: 'pre-wedding', img: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=1000' },
-    { name: 'Wedding', id: 'wedding', img: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=1000' },
-    { name: 'Films', id: 'films', img: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1000' },
-    { name: 'Maternity & Kids', id: 'maternity', img: 'https://images.unsplash.com/photo-1559599141-98bb67c45889?q=80&w=1000' },
-    { name: 'Testimonials', id: 'testimonials', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1000' },
-    { name: 'Contact', id: 'contact', img: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=1000' },
+    { name: 'Home', id: 'top', img: HERO_IMAGES[0]?.img },
+    { name: 'About', id: 'about', img: aboutimg },
+    { name: 'Pre-Wedding', id: 'pre-wedding', img: prewedding },
+    { name: 'Wedding', id: 'wedding', img: wedding},
+    { name: 'Films', id: 'films', img:film  },
+    { name: 'Maternity & Kids', id: 'maternity', img: maternity },
+    { name: 'Testimonials', id: 'testimonials', img:testimonial },
+    { name: 'Contact', id: 'contact', img: contact},
   ];
 
   const handleNavigation = (id) => {

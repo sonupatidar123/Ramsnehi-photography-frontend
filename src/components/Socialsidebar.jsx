@@ -28,7 +28,7 @@ const SocialSidebar = () => {
   return (
     <>
       {/* Desktop Top-Right Buttons */}
-      <div className="fixed top-12 right-12 z-[100] flex gap-3 hidden md:flex">
+      <div className="fixed top-12 right-12 z-100 flex gap-3 hidden md:flex">
         {socials.map((social, index) => (
           <motion.a
             key={index}

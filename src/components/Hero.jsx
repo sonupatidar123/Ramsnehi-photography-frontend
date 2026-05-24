@@ -43,12 +43,13 @@ const handleNavigation = (id) => {
           animate={{ opacity: 0.6, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 2, ease: "easeOut" }}
-          className="absolute inset-0"
+          className="absolute inset-0 w-full h-full"
         >
           <img 
-            src={HERO_IMAGES[current]} 
+            src={HERO_IMAGES[current].img} 
             alt="Wedding Photography by Rahul Patidar" 
-            className="w-full h-full object-cover" 
+            className="w-full h-full object-cover object-center" 
+            loading="eager"
           />
         </motion.div>
       </AnimatePresence>
@@ -65,8 +66,8 @@ const handleNavigation = (id) => {
             Premier Wedding Cinematography
           </span>
           <h1 className="text-5xl md:text-8xl font-serif text-white leading-none tracking-tighter mb-8">
-            Capturing the <br />
-            <span className="italic font-light text-white/80">Art of Emotions.</span>
+            Ramsnehi Photography <br />
+            <span className="italic font-light text-white/80"> mandsaur</span>
           </h1>
           
           <div className="flex flex-wrap gap-4 md:gap-6 items-center">
