@@ -109,7 +109,7 @@ const Navbar = () => {
               <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/20 to-black/90" />
             </div>
 
-            <div className="relative z-10 flex flex-col items-center gap-1 md:gap-2">
+            <div className="relative z-10 flex flex-col items-center gap-2 md:gap-4 w-full">
               {menuItems.map((item, index) => (
                 <motion.div
                   key={item.name}
@@ -118,19 +118,19 @@ const Navbar = () => {
                   transition={{ delay: index * 0.05 }}
                   onMouseEnter={() => setHoveredItem(item.name)}
                   onMouseLeave={() => setHoveredItem(null)}
-                  className="group relative"
+                  className="group relative w-fit mx-auto"
                 >
                   <button 
                     onClick={() => handleNavigation(item.id)}
-                    className="block text-3xl md:text-6xl lg:text-7xl font-serif text-white/40 hover:text-white transition-all duration-500 tracking-tighter hover:italic"
+                    className="relative flex items-center justify-center text-3xl md:text-5xl lg:text-6xl font-serif text-white/40 hover:text-white transition-all duration-500 tracking-tighter hover:italic"
                   >
-                    <span className="inline-block mr-4 text-[10px] font-sans tracking-[0.5em] text-red-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 italic">
+                    <span className="absolute right-full mr-4 text-[10px] md:text-xs font-sans tracking-[0.5em] text-red-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 italic whitespace-nowrap">
                       0{index + 1}
                     </span>
                     {item.name}
                   </button>
                   <motion.div 
-                    className="h-[1px] bg-red-600 w-0 group-hover:w-full transition-all duration-700 mx-auto mt-1"
+                    className="h-[1px] bg-red-600 w-0 group-hover:w-full transition-all duration-700 mx-auto mt-1 md:mt-2"
                   />
                 </motion.div>
               ))}

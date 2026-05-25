@@ -62,8 +62,8 @@ const TestimonialCard = ({ testimonial, index, isActive }) => {
       transition={{ duration: 0.5, delay: index * 0.08 }}
       className={`relative p-8 md:p-10 border transition-all duration-300 group overflow-hidden ${
         isActive 
-          ? 'bg-gradient-to-br from-white/10 to-white/5 border-red-500/40 ring-1 ring-red-500/20' 
-          : 'bg-white/[0.02] border-white/[0.08] hover:border-white/[0.15]'
+          ? 'bg-gradient-to-br from-red-950/40 to-red-900/20 border-red-500/50 ring-1 ring-red-500/30' 
+          : 'bg-gradient-to-br from-neutral-900/60 to-neutral-800/40 border-neutral-700/40 hover:border-red-500/30'
       }`}
     >
       {/* Decorative Corner Accent */}
